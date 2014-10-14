@@ -1,0 +1,16 @@
+setwd(paste0(getwd(),"/Exploratory_Assignment1"))
+data <- read.table("household_power_consumption-2.txt",sep=";",na.strings="?",header=TRUE)
+options("max.print"=1000000000)
+mydata <- subset(data,Date>="1/2/2007" & Date<="2/2/2007")
+df1 <- subset(data,data$Date=="1/2/2007" | data$Date=="2/2/2007")
+
+# Fourth Plot: Multiple Plots
+par(mfrow=c(2,2))
+plot(df2$Global_active_power~df2$Date,type="l",ylab="Global Active Power (kilowatt)",xlab="")
+plot(df2$Voltage~df2$Date,type="l",ylab="Voltage",xlab="datetime")
+plot(df2$Sub_metering_1~df2$Date,type="l",col="black",xlab="",ylab="Energy sub metering")
+lines(df2$Sub_metering_2~df2$Date,type="l",col="red")
+lines(df2$Sub_metering_3~df2$Date,type="l",col="blue")
+plot(df2$Global_reactive_power~df2$Date,type="l",xlab="datetime",ylab="Global_reactive_power")
+dev.copy(png,"Plot4.png",width=480,height=480)
+dev.off()

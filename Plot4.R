@@ -1,20 +1,25 @@
 plot4 <- function() {
         file <- file.path(getwd(),"household_power_consumption.txt")
         
-        ## Reading the first row to get the column classes
-        testdata <- read.table(file, header = T, sep = ";", nrows = 1, na.strings = c(NA, "?"), stringsAsFactors = F)
+        ## Reading first 1000 rows to get the column classes and reading the complete file as character with readLines()
+        testdata <- read.table(file, header = T, sep = ";", nrows = 1000, na.strings = c(NA, "?"), stringsAsFactors = F)
         classes <- sapply(testdata, class)
-        
-        ## Reading the lines as character with readLines and run charmatch() to get the indices for running read.table with
-        ## specifically identified values of 'skip' and 'nrows' to read only the required set of data. The indices for first line on dates 1/2/2007
-        ## and 3/2/2007 are identified from which the reqired indices for skip and nrow parameters are calculated in the read.table function
         f <- readLines(file)
         
-        ## Reading only the required data with dates from 01-02-2007 and 02-02-2007
-        f1 <- charmatch(c("1/2/2007;00:00:00;0.326;0.128;243.150;1.400;0.000;0.000;0.000",
-                          "3/2/2007;00:00:00;3.614;0.106;240.990;15.000;0.000;1.000;18.000"), f)
-        powerdata <- read.table(file, skip = (f1[1]-2), 
-                                nrows = (f1[2]-f1[1]), dec = ".", header = T, sep = ";", 
+        ## Estimation of file size: Extrapolating the size of 1000 line object to calculate the size of 2075259 rows of data
+        size <- object.size(testdata)
+        estimated.size <- round(((size/1000)*2075259)/1e+9, digits = 2)
+        print(paste("Estimated object size: ", estimated.size, "GB"))   ## Output: [1] "Estimated object size:  0.27 GB"
+        
+        ## Identifying index for first row for date 1/2/2007 and first row for date 3/2/2007 and storing in numeric vector i
+        ## str_detect is in package stringr
+        library(stringr)
+        f1 <- f[which(str_detect(f, fixed("1/2/2007")))][1]; f2 <- f[which(str_detect(f, fixed("3/2/2007")))][1]
+        i <- charmatch(c(f1, f2), f)
+        
+        ## Reading only the required data with dates from 01-02-2007 and 02-02-2007 passting i[] to skip and nrows parameters
+        powerdata <- read.table(file, skip = (i[1] - 2), 
+                                nrows = (i[2] - i[1]), dec = ".", header = T, sep = ";", 
                                 na.strings = c(NA, "?"), stringsAsFactors = F, colClasses=classes)
         
         ## Setting the column names with previous read dataframe with single row
